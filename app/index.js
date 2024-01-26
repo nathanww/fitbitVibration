@@ -40,12 +40,17 @@ let vibeMode=0;
 let lowLogged=false;
 let oldbps="none";
 let lastShot=0;
-
+let timeSinceCheck=0;
+let vibestarted=false;
+let lastBreak=Date.now();
 function vibeHires() {
 	var foo=0;
 	var loops=0;
 	var freq=20;
-	while (loops < freq*2) {
+	if (!vibestarted) {
+		vibestarted=true;
+	var loopStart=Date.now();
+	for (var loops=0; loops < freq; loops++) {
 	console.log("loop "+loops);
 	var startTime=Date.now();
 	
@@ -69,8 +74,11 @@ function vibeHires() {
 		}
 	}
 	
-	
-	loops++;
+	vibestarted=false;
+	if ((Date.now()-loopStart) > 900) {
+		break;
+	}
+	}
 	}
 	
 }
@@ -132,9 +140,17 @@ me.appTimeoutEnabled=false;
 
 
 //SETS UP CLOCK DISPLAY:
-clock.granularity = 'minutes'; // seconds, minutes, hours
+clock.granularity = 'seconds'; // seconds, minutes, hours
 clock.ontick = function(evt) {
-	
+	/*
+	if (timeSinceCheck >=10) { //occasionally skip vibration so the system can catch up on other things
+		timeSinceCheck=0;
+	}
+	else {
+	vibeHires();
+	timeSinceCheck++;
+	}*/
+	vibeHires();
 	//check battery 
 	if (battery.chargeLevel < 20) {
 		batWarn.text="BATTERY LOW";
@@ -181,7 +197,7 @@ messaging.peerSocket.addEventListener("message", (evt) => {
   }
 });
 
-setInterval(vibeHires,1000);
+//setInterval(vibeHires,50);
 //vibeHires();
 //me.onunload = closeFile;
 
