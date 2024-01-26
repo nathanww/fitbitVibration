@@ -44,8 +44,8 @@ let lastShot=0;
 function vibeHires() {
 	var foo=0;
 	var loops=0;
-	var freq=10;
-	while (true) {
+	var freq=20;
+	while (loops < freq*2) {
 	console.log("loop "+loops);
 	var startTime=Date.now();
 	
@@ -54,16 +54,17 @@ function vibeHires() {
 	var loop=true;
 	while (loop) {
 		console.log(Date.now());
-		if (Date.now() > startTime+100) {
+		if (Date.now() > startTime+((1000/freq)/2)) {
 			vibration.stop()
 			loop=false;
 		}
 	}
 	console.log("stop "+Date.now())
+	startTime=Date.now();
 	 loop=true;
 	while (loop) {
 		console.log(Date.now());
-		if (Date.now() > startTime+100) {
+		if (Date.now() > startTime+((1000/freq)/2)) {
 			loop=false;
 		}
 	}
@@ -180,7 +181,8 @@ messaging.peerSocket.addEventListener("message", (evt) => {
   }
 });
 
-vibeHires();
+setInterval(vibeHires,1000);
+//vibeHires();
 //me.onunload = closeFile;
 
 //FINISHED SETTING UP CLOCK DISPLAY
