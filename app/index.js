@@ -7,6 +7,7 @@ import { me } from "appbit";
 import { battery } from "power";
 import * as fs from "fs";
 import { BodyPresenceSensor } from "body-presence";
+import { display } from "display";
 const bps = new BodyPresenceSensor();
 import * as messaging from "messaging";
 const background = document.getElementById("background");
@@ -46,7 +47,6 @@ let lastBreak=Date.now();
 function vibeHires() {
 	var foo=0;
 	var loops=0;
-	var freq=20;
 	if (!vibestarted) {
 		vibestarted=true;
 	var loopStart=Date.now();
@@ -75,7 +75,7 @@ function vibeHires() {
 	}
 	
 	vibestarted=false;
-	if ((Date.now()-loopStart) > 900) {
+	if ((Date.now()-loopStart) > 900) { //give the system time at the end of the signal to process other messages
 		break;
 	}
 	}
@@ -126,7 +126,7 @@ vibration.stop();
 }
 me.appTimeoutEnabled = false; // Disable timeout
 
-let freq=0.5;
+let freq=-1;
 let isVibrating=false;
 let timerHandle=[];
 
@@ -150,7 +150,13 @@ clock.ontick = function(evt) {
 	vibeHires();
 	timeSinceCheck++;
 	}*/
+	
+	if (freq > 0) {
 	vibeHires();
+	}
+	else {
+		vibration.stop();
+	}
 	//check battery 
 	if (battery.chargeLevel < 20) {
 		batWarn.text="BATTERY LOW";
@@ -179,16 +185,16 @@ messaging.peerSocket.addEventListener("message", (evt) => {
   if (result > 0) {
 	  freq=evt.data;
 	 
-	  vibe();
   }
   if (result == -1) {
-	  clearInterval(timerHandle);
-	  vibration.stop();
 	  
+	  vibration.stop();
+	  freq=evt.data;
   }
   
   if (result == -10) { //do a "one shot" vibration
-	  clearInterval(timerHandle);
+	  	  freq=evt.data;
+
 	  if (Date.now() > lastShot+20000) { //only do it if at least 30 s have elapsed since last triggered
 	  vibration.stop();
 	  vibration.start("confirmation-max");
@@ -197,7 +203,7 @@ messaging.peerSocket.addEventListener("message", (evt) => {
   }
 });
 
-//setInterval(vibeHires,50);
+setInterval(display.poke,1000); //keep the screen awake
 //vibeHires();
 //me.onunload = closeFile;
 
